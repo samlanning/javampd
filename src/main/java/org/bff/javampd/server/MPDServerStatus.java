@@ -1,6 +1,7 @@
 package org.bff.javampd.server;
 
 import com.google.inject.Inject;
+
 import org.bff.javampd.command.CommandExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,15 @@ public class MPDServerStatus implements ServerStatus {
 
     @Override
     public long getElapsedTimeMillis() {
-        return Math.round(Double.parseDouble(getStatus(Status.ELAPSED)) * 1000);
+        String elapsed = getStatus(Status.ELAPSED);
+        if (elapsed.isEmpty())
+            return 0;
+        try {
+            return Math.round(Double.parseDouble(elapsed) * 1000);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Received unexpected elapsed time: " + elapsed);
+            return 0;
+        }
     }
 
     @Override
